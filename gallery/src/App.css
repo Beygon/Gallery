@@ -1,0 +1,7 @@
+ul li {
+  text-decoration: none !important;
+  list-style-type: none !important;
+}
+span {
+  font-weight: bold;
+}
