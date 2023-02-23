@@ -1,51 +1,50 @@
-import React from "react";
-import Container from "react-bootstrap/Container";
-import Card from "react-bootstrap/Card";
-
+import React, { useState, useEffect } from "react";
+import Container from "react-bootstrap/esm/Container";
+import ImageCard from "./ImageCard";
+import ImageSearch from "./ImageSearch";
 const List = () => {
+  const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [term, setTerm] = useState("");
+
+  useEffect(() => {
+    fetch(
+      `https://pixabay.com/api/?key=${process.env.REACT_APP_PIXABAY_API_KEY}&q=${term}&image_type=photo&pretty=true`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setImages(data.hits);
+        setIsLoading(false);
+      })
+      .catch((err) => console.log(err));
+  }, [term]);
   return (
     <>
+      <ImageSearch searchText={(text) => setTerm(text)} />
+      {!isLoading && images.length === 0 && (
+        <h1 className="d-flex text-center justify-content-center align-items-center mt-4">
+          Sorry,No image found!
+        </h1>
+      )}
       <Container>
-        <Card
-          style={{
-            width: "18rem",
-            height: "350px",
-          }}
-          className="mt-5"
-        >
-          <Card.Img
-            variant="top"
-            src="https://source.unsplash.com/random"
-            style={{
-              overflow: "hidden",
-              objectFit: "cover",
-            }}
-          />
-          <Card.Body>
-            <Card.Text>
-              <Card.Title>Photo By John Doe</Card.Title>
-              <ul>
-                <li>
-                  <span className="font-weight-bold">Views:</span> 4000
-                </li>
-                <li>
-                  <span>Downloads: </span>4670
-                </li>
-                <li>
-                  <span>Likes: </span>4670
-                </li>
-              </ul>
-              <div className="px-6 py-2">
-                <span className="px-3 py-1 inline-block bg-secondary rounded-pill text-sm text-white">
-                  #tag1
-                </span>
-                <span className="px-3 py-1 mx-2 inline-block bg-secondary rounded-pill text-sm text-white">
-                  #tag2
-                </span>
-              </div>
-            </Card.Text>
-          </Card.Body>
-        </Card>
+        <div className="row">
+          {isLoading ? (
+            <h1 className="mt-5 mx-auto text-center">Loading...</h1>
+          ) : (
+            <div
+              className="col-sm w-100 align-items-center justify-content-center"
+              style={{
+                display: "flex",
+                gap: 30,
+                flexWrap: "wrap",
+              }}
+            >
+              {images.map((image) => (
+                <ImageCard image={image} key={image.id} />
+              ))}
+            </div>
+          )}
+        </div>
       </Container>
     </>
   );
